@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Tachistoscopio</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background-color: #f4f4f4;
+    }
+    #main-interface, #countdown, #sillaba-container, #end-message {
+      display: none;
+    }
+    #sillaba {
+      font-size: 80px;
+      font-weight: bold;
+    }
+    #countdown {
+      font-size: 100px;
+      font-weight: bold;
+    }
+    #end-message {
+      font-size: 40px;
+      color: green;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="setup">
+    <h1>Tachistoscopio</h1>
+    <label>Inserisci le sillabe (separate da virgola):<br>
+      <input type="text" id="sillabeInput" style="width: 300px;">
+    </label>
+    <br><br>
+    <label>Tempo di visualizzazione (ms):<br>
+      <input type="number" id="displayTime" value="500">
+    </label>
+    <br><br>
+    <label>Intertempo tra sillabe (ms):<br>
+      <input type="number" id="interTime" value="300">
+    </label>
+    <br><br>
+    <button onclick="start()">Avvia</button>
+  </div>
+
+  <div id="countdown">3</div>
+
+  <div id="sillaba-container">
+    <div id="sillaba"></div>
+  </div>
+ <button id="pauseBtn" onclick="togglePause()">⏸ Pausa</button>
+  <div id="end-message">OTTIMO LAVORO!</div>
+
+  <script>
+    let sillabe = [];
+    let displayTime = 500;
+    let interTime = 300;
+    let sessionDuration = 10 * 60 * 1000; // 10 minuti
+    let sessionTimeout;
+    let running = true;
+
+    function start() {
+      // Nasconde la UI e avvia countdown
+      document.getElementById("setup").style.display = "none";
+      document.getElementById("countdown").style.display = "block";
+
+      // Legge valori da input
+      sillabe = document.getElementById("sillabeInput").value.split(",").map(s => s.trim()).filter(Boolean);
+      displayTime = parseInt(document.getElementById("displayTime").value);
+      interTime = parseInt(document.getElementById("interTime").value);
+
+      // Avvia countdown 3...2...1
+      let count = 3;
+      const countdownEl = document.getElementById("countdown");
+      const countdownInterval = setInterval(() => {
+        countdownEl.textContent = count;
+        count--;
+        if (count < 0) {
+          clearInterval(countdownInterval);
+          countdownEl.style.display = "none";
+          document.getElementById("sillaba-container").style.display = "block";
+          startPresentation();
+        }
+      }, 1000);
+    }
+
+    
+	function startPresentation() {
+      const sillabaEl = document.getElementById("sillaba");
+
+      // Avvia timer sessione
+      sessionTimeout = setTimeout(() => {
+        running = false;
+        document.getElementById("sillaba-container").style.display = "none";
+        document.getElementById("end-message").style.display = "block";
+      }, sessionDuration);
+
+      function showNext() {
+        if (!running) return;
+        // Mostra una sillaba casuale
+        const randIndex = Math.floor(Math.random() * sillabe.length);
+        sillabaEl.textContent = sillabe[randIndex];
+
+        // Mostra per displayTime, poi pausa per interTime
+        setTimeout(() => {
+          sillabaEl.textContent = "";
+          setTimeout(showNext, interTime);
+        }, displayTime);
+      }
+
+      showNext();
+    }
+  </script>
+
+</body>
+</html>
