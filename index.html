@@ -26,13 +26,12 @@
       color: green;
       margin-top: 30px;
     }
-	#pauseBtn {
-  #pauseBtn {
-  margin-top: 30px;
-  padding: 10px 20px;
-  font-size: 18px;
-  display: none;
-}
+    #pauseBtn {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 18px;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -59,28 +58,33 @@
   <div id="sillaba-container">
     <div id="sillaba"></div>
   </div>
- <button id="pauseBtn" onclick="togglePause()">PAUSA</button>
+
+  <button id="pauseBtn" onclick="togglePause()">⏸ Pausa</button>
+
   <div id="end-message">OTTIMO LAVORO!</div>
 
   <script>
     let sillabe = [];
     let displayTime = 500;
     let interTime = 300;
-    let sessionDuration = 10 * 60 * 1000; // 10 minuti
+    let sessionDuration = 10 * 60 * 1000;
+    let sessionStartTime;
+    let timeLeft = sessionDuration;
     let sessionTimeout;
-    let running = true;
+    let paused = false;
+    let pauseBtn;
+    let running = false;
+    let presentationLoop;
+    let nextTimeout;
 
     function start() {
-      // Nasconde la UI e avvia countdown
       document.getElementById("setup").style.display = "none";
       document.getElementById("countdown").style.display = "block";
 
-      // Legge valori da input
       sillabe = document.getElementById("sillabeInput").value.split(",").map(s => s.trim()).filter(Boolean);
       displayTime = parseInt(document.getElementById("displayTime").value);
       interTime = parseInt(document.getElementById("interTime").value);
 
-      // Avvia countdown 3...2...1
       let count = 3;
       const countdownEl = document.getElementById("countdown");
       const countdownInterval = setInterval(() => {
@@ -90,36 +94,56 @@
           clearInterval(countdownInterval);
           countdownEl.style.display = "none";
           document.getElementById("sillaba-container").style.display = "block";
+          document.getElementById("pauseBtn").style.display = "inline-block";
+          running = true;
+          sessionStartTime = Date.now();
+          sessionTimeout = setTimeout(endSession, timeLeft);
           startPresentation();
         }
       }, 1000);
     }
 
-    
-	function startPresentation() {
+    function startPresentation() {
       const sillabaEl = document.getElementById("sillaba");
 
-      // Avvia timer sessione
-      sessionTimeout = setTimeout(() => {
-        running = false;
-        document.getElementById("sillaba-container").style.display = "none";
-        document.getElementById("end-message").style.display = "block";
-      }, sessionDuration);
+      function loop() {
+        if (!running || paused) return;
 
-      function showNext() {
-        if (!running) return;
-        // Mostra una sillaba casuale
         const randIndex = Math.floor(Math.random() * sillabe.length);
         sillabaEl.textContent = sillabe[randIndex];
 
-        // Mostra per displayTime, poi pausa per interTime
-        setTimeout(() => {
+        nextTimeout = setTimeout(() => {
           sillabaEl.textContent = "";
-          setTimeout(showNext, interTime);
+          nextTimeout = setTimeout(loop, interTime);
         }, displayTime);
       }
 
-      showNext();
+      loop();
+    }
+
+    function togglePause() {
+      const btn = document.getElementById("pauseBtn");
+
+      if (!paused) {
+        paused = true;
+        clearTimeout(nextTimeout);
+        clearTimeout(sessionTimeout);
+        timeLeft -= Date.now() - sessionStartTime;
+        btn.textContent = "▶️ Riprendi";
+      } else {
+        paused = false;
+        btn.textContent = "⏸ Pausa";
+        sessionStartTime = Date.now();
+        sessionTimeout = setTimeout(endSession, timeLeft);
+        startPresentation();
+      }
+    }
+
+    function endSession() {
+      running = false;
+      document.getElementById("sillaba-container").style.display = "none";
+      document.getElementById("pauseBtn").style.display = "none";
+      document.getElementById("end-message").style.display = "block";
     }
   </script>
 
