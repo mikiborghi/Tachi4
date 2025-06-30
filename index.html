@@ -4,33 +4,52 @@
   <meta charset="UTF-8">
   <title>Tachistoscopio</title>
   <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
       background-color: #f4f4f4;
     }
-    #main-interface, #countdown, #sillaba-container, #end-message {
+
+    #container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #setup, #countdown, #sillaba-container, #end-message {
       display: none;
     }
+
     #sillaba {
       font-size: 80px;
       font-weight: bold;
     }
-    
+
     #sottotitolo {
       font-size: 24px;
       margin-bottom: 20px;
     }
+
     #countdown {
       font-size: 100px;
       font-weight: bold;
     }
+
     #end-message {
       font-size: 40px;
       color: green;
       margin-top: 30px;
     }
+
     #pauseBtn {
       position: fixed;
       top: 20px;
@@ -49,36 +68,39 @@
 </head>
 <body>
 
-  <div id="setup">
-    <h1>TRAINING LETTURA</h1>
-        <label>Log. Rosalia Di Leve e Studentessa Borghi Micol<br>
-      <input type="text" id="subtitleInput" style="width: 300px;" placeholder="Inserisci il sottotitolo">
-    </label>
-    <br><br>
-    <label>Inserisci le sillabe (separate da virgola):<br>
-      <input type="text" id="sillabeInput" style="width: 300px;">
-    </label>
-    <br><br>
-    <label>Tempo di visualizzazione (ms):<br>
-      <input type="number" id="displayTime" value="500">
-    </label>
-    <br><br>
-    <label>Intertempo tra sillabe (ms):<br>
-      <input type="number" id="interTime" value="300">
-    </label>
-    <br><br>
-    <button onclick="start()">Avvia</button>
-  </div>
+  <div id="container">
+    <div id="setup">
+      <h1>Tachistoscopio</h1>
+      
+      <label>Inserisci le sillabe (separate da virgola):<br>
+        <input type="text" id="sillabeInput" style="width: 300px;">
+      </label>
+      <br><br>
+      
+      <label>Tempo di visualizzazione (ms):<br>
+        <input type="number" id="displayTime" value="500">
+      </label>
+      <br><br>
+      
+      <label>Intertempo tra sillabe (ms):<br>
+        <input type="number" id="interTime" value="300">
+      </label>
+      <br><br>
+      
+      <button onclick="start()">Avvia</button>
+    </div>
 
-  <div id="countdown">3</div>
+    <div id="countdown">3</div>
 
-  <div id="sillaba-container">
-    <div id="sillaba"></div>
+    <div id="sillaba-container">
+      <div id="sottotitolo">Log. RDL e studentessa MB</div>
+      <div id="sillaba"></div>
+    </div>
+
+    <div id="end-message">OTTIMO LAVORO!</div>
   </div>
 
   <button id="pauseBtn" onclick="togglePause()">⏸ Pausa</button>
-
-  <div id="end-message">OTTIMO LAVORO!</div>
 
   <script>
     let sillabe = [];
@@ -89,10 +111,9 @@
     let timeLeft = sessionDuration;
     let sessionTimeout;
     let paused = false;
-    let pauseBtn;
     let running = false;
-    let presentationLoop;
     let nextTimeout;
+    let subtitleText = "";
 
     function start() {
       document.getElementById("setup").style.display = "none";
@@ -101,6 +122,8 @@
       sillabe = document.getElementById("sillabeInput").value.split(",").map(s => s.trim()).filter(Boolean);
       displayTime = parseInt(document.getElementById("displayTime").value);
       interTime = parseInt(document.getElementById("interTime").value);
+      subtitleText = document.getElementById("subtitleInput").value;
+      document.getElementById("sottotitolo").textContent = subtitleText;
 
       let count = 3;
       const countdownEl = document.getElementById("countdown");
