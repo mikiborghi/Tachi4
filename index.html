@@ -8,17 +8,38 @@
       font-family: Arial, sans-serif;
       margin: 0;
       height: 100vh;
-      background-color: #f4f4f4;
+      background-color: #FFFFCC;
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: #FFFFCC;
+      flex-direction: column;
+    }
+
+    #header {
+      position: fixed;
+      top: 20px;
+      width: 100%;
+      text-align: center;
+    }
+
+    #header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    #header p {
+      font-size: 15px;
+      margin-top: 5px;
+      font-weight: bold;
+      font-style: italic;
+      color: #800000;
     }
 
     #container {
       text-align: center;
       padding: 50px;
       max-width: 600px;
+      margin-top: 120px; /* spazio sotto l'header */
     }
 
     #main-interface, #countdown, #sillaba-container, #end-message {
@@ -60,14 +81,15 @@
 </head>
 <body>
 
+  <div id="header">
+    <h1>TRAINING LETTURA</h1>
+    <p>Log. RDL e Studente Log. MB</p>
+  </div>
+
   <button id="pauseBtn" onclick="togglePause()">⏸ Pausa</button>
 
   <div id="container">
     <div id="setup">
-      <h1>TRAINING LETTURA</h1>
-      <p style="font-size:15px; margin-top: -10px; font-weight: bold; font-style: italic; color: #800000;">
-        Log. RDL e Studente Log. MB
-      </p>
       <label>Inserisci le sillabe (separate da virgola):<br>
         <input type="text" id="sillabeInput" style="width: 300px;">
       </label>
